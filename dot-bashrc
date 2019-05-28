@@ -1,0 +1,355 @@
+    # ------------
+    export red='\e[0;31m'
+    export RED='\e[1;31m'
+    export blue='\e[0;34m'
+    export BLUE='\e[1;34m'
+    export cyan='\e[0;36m'
+    export CYAN='\e[1;36m'
+    export NC='\e[0m'              # No Color
+
+    export PROMPTCOL=$red
+    export DIRCOL=$RED
+    export HISTCONTROL=ignoreboth
+    export HISTSIZE=
+    export HISTFILESIZE=
+
+    source /usr/lib/git-core/git-sh-prompt
+    export PS1="\[$PROMPTCOL\]\u@`hostname` \[$DIRCOL\]\w \[$cyan\]\$(vcprompt --format-git %b) \$\[$NC\] "
+    #PROMPT_COMMAND='__git_ps1 "${debian_chroot:+($debian_chroot)}\[\033[00m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]" "\\\$ "'
+    export LS_OPTIONS='--color=auto -h --group-directories-first'
+    export LC_COLLATE="C"
+    eval "`dircolors -b ~/.dircolorsrc`"
+
+
+# ----------
+### IDEs ### 
+# ----------
+# debenv for dch
+export EDITOR=vim
+export DEBEMAIL=alexander.bacho@firma.seznam.cz
+export DEBFULLNAME='Alexander Bacho'
+
+
+# ssh key forwarding
+# echo Init user-agent for SSH-Keys forwarding...
+# . ~/useragent >/dev/null
+# ( ps $SSH_AGENT_PID | grep ssh-agent 2>&1 >/dev/null) || ssh-agent > ~/useragent
+# . ~/useragent
+# ssh-add 2>/dev/null
+
+#--------------
+### ALIASES ###
+#--------------
+alias ta='tmux attach '
+alias t='tmux '
+alias g='grep '
+alias p='ping '
+alias s='ssh -A '
+alias tf='tail -f '
+alias v='vim '
+alias vi='vim '
+alias i='ipython3 '
+
+alias bal='rm -f debian/pkg/* && szn-buildpackage -nccu'
+alias bam='bal && dpkg -i debian/pkg/*deb'
+alias wow='bam && /etc/init.d/$(basename $(ls debian/*init | head -n 1) .init) restart'
+alias res='/etc/init.d/$(basename $(ls debian/*init | head -n 1) .init) restart'
+
+alias l='ls $LS_OPTIONS -lAh'
+alias ll='ls $LS_OPTIONS -lh'
+alias ls='ls $LS_OPTIONS'
+
+alias dd='echo "Dont Do that"'
+alias df='df -h'
+alias du='du -h'
+alias grep='grep --color=auto --colour=auto'
+alias np='netstat -punta'
+alias sdch='sdch -i -D Seznam'
+alias set_proxy='export http_proxy=http://proxy:3128'
+
+#-------------
+### PYTHON ###
+#-------------
+alias mkvirtualenv3='mkvirtualenv -p /usr/bin/python3'
+alias plr='pep8 --repeat --ignore=E501'
+
+function pp()
+{
+    if [ -z "$1" ]
+    then
+        echo "Insert filename."
+        return
+    fi
+
+    plr $1
+    pyflakes $1
+}
+
+#-----------
+### TMUX ###
+#-----------
+_ssh_auth_save() {
+    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh-auth-sock.$HOSTNAME"
+}
+
+alias tmux='_ssh_auth_save ; export HOSTNAME=$(hostname) ; tmux'
+
+#-------------
+### SCREEN ###
+#-------------
+alias scre='echo $STY'
+alias scrls='screen -ls'
+alias scrr='screen -r'
+
+function scr()
+{
+    if [ -n "$STY" ]; then
+        screen -d $STY
+    fi
+
+    screen -d -R $1
+}
+
+#-------------
+### SEARCH ###
+#-------------
+function ff()
+{ 
+    find . -name '*'$1'*'
+}
+
+function gall()
+{
+    grep -rni $1 .
+}
+
+function gch()
+{
+    grep --include=*.{c,cc,cpp,h} $1 . -rni
+}
+
+function gconf()
+{
+    grep --include=*.{conf,cfg} $1 . -rni
+}
+
+function ghtml()
+{
+    grep --include="*.html" $1 . -rni
+}
+
+function gjs()
+{
+    grep --include="*.js" $1 . -rni
+}
+
+function glog()
+{
+    if [ -z $2 ]
+    then
+        grep --include=*log "$1" . -rni
+    else
+        grep --include=*log "$1" "$2" -rni
+    fi
+}
+
+function gpy()
+{
+    grep --include="*.py" $1 . -rni
+}
+
+#--------------
+### PACKAGE ###
+#--------------
+function vd()
+{
+    vimdiff $1'*';
+}
+
+function ubal()
+{
+    svn up 
+    rm debian/pkg/*; 
+    sdch -i $1; 
+    bam; 
+    cp debian/pkg/*.deb ~/deb/
+}
+
+function make_pkg()
+{
+    rm_pkg
+
+    for P_PATH in $@
+    do
+        cd $P_PATH
+        szn-buildpackage -nccu
+        cd ..
+    done
+}
+
+function rm_pkg()
+{
+    rm */debian/pkg/*
+}
+
+function cp_pkg()
+{
+    cp */debian/pkg/*deb $1
+}
+
+function scp_pkg()
+{
+    scp */debian/pkg/*deb $1
+}
+
+#--------------
+### SVN/GIT ###
+#--------------
+alias gigraph='git log --graph --decorate --pretty=oneline --abbrev-commit'
+alias masterdir='for i in `ls -d */`; do echo ">>DIR "$i; cd $i; gic master; cd ..; done;'
+alias prunedir='for i in `ls -d */`; do echo ">>DIR "$i; cd $i; git remote prune origin; cd ..; done;'
+alias stdir='for i in `ls -d */`; do echo ">>DIR "$i; cd $i; st; cd ..; done;'
+alias updir='for i in `ls -d */`; do echo ">>DIR "$i; cd $i; up; cd ..; done;'
+
+alias gidiff='git diff | view -'
+alias gidiffc='git diff --cached | view -'
+alias gidifff='git diff --name-only HEAD..origin/HEAD'
+
+alias b='git branch -va'
+alias gic='git checkout'
+alias gicb='git checkout -b'
+
+alias gichange='git diff --name-only origin/master..HEAD | cut -d"/" -f1 | uniq'
+alias gitchange='gichange'i
+
+alias prop='svn propset svn:keywords "Id Rev Date Author"'
+
+function gitbranch()
+{ 
+    git checkout -b $@;
+    git push -u origin $@
+}
+
+function gitdelete()
+{
+    git branch -D $@;
+    git push origin :$@
+}
+
+function st()
+{
+    if [ -e .svn ]
+    then
+        svn st | grep -v "?"
+    else
+        git remote show origin | grep "Fetch.URL"
+        git status
+    fi
+}
+
+function up()
+{
+    if [ -e .svn ]
+    then
+        svn up
+    else
+        git fetch -p
+        git pull $@
+    fi
+}
+
+function svdiff()
+{
+    if [ -e .svn ]
+    then
+        svn diff | view -
+    else
+        git diff | view -
+    fi
+}
+
+function merge_tickets () 
+{ 
+    for ticket in `cat ~/tickets.list | grep ^t`;
+    do
+        echo;
+        dbg info $ticket;
+        git merge origin/$ticket;
+        if [ $? -ne 0 ]; then
+            echo;
+            echo;
+            dbg error "   !!! Failed to merge $ticket";
+            git status;
+            exit 1;
+        fi;
+    done;
+    echo;
+    dbg info "DONE"
+}
+
+#-----------
+### MISC ###
+#-----------
+function scurl() {
+    USER='alexander.bacho'
+    FILES=$@
+    CNT=1
+    
+    read -s -p "Password for username $USER: " PASSWORD; echo
+
+    while true
+    do
+        # vypis cyklu at vim, ze se neco deje
+        echo -ne "\e[1K\rCyklus:$CNT"
+        
+        for FILE in $FILES
+        do
+            # hodime si to do subshellu, aby nas to zbytecne nebuzerovalo
+            (
+                OUTPUT=`echo $FILE | sed "s/https*:\/\/\([^.]*\.[^.]*\).*\/\(.*\)/\1-\2/g"`
+
+                # v aktualnim adresari vytvorime namedpipe
+                rm pipe.* 2> /dev/null
+                mkfifo pipe.$$
+
+                # nastvime curl a pockame si na predani jmena a hesla pres trubku
+                curl "$FILE" -k --silent --fail --output "$OUTPUT" -C- --config pipe.$$ &
+                PID=$!
+
+                # zapiseme do trubky jmeno a heslo a potom trubku smazeme
+                echo -e "--user $USER:$PASSWORD\n" > pipe.$$ 
+                rm -f pipe.$$
+
+                # pockame az proces skonci a jede se dal
+                wait $PID
+            ) 
+        done
+        
+        CNT=$((CNT+1))
+        sleep 1
+    done
+}
+
+function rrm()
+{
+    if [ "$1" == "py" ]; then
+        echo 'Are you sure? (yes/whatever)'
+        read line
+        if [ "$line" != "yes" ]; then
+            echo 'Files not removed'
+            return 0
+        fi
+    fi
+    find . -name '*.'$1 -exec rm -rf {} \;
+}
+
+fixssh() {
+for key in SSH_AUTH_SOCK SSH_CONNECTION SSH_CLIENT; 
+do
+    if (tmux show-environment | grep "^${key}" > /dev/null); 
+    then
+        value=`tmux show-environment | grep "^${key}" | sed -e "s/^[A-Z_]*=//"`
+        export ${key}="${value}"
+    fi
+done
+}
