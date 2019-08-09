@@ -61,11 +61,12 @@ alias i='ipython3 '
 
 alias ga='git add .'
 alias gc='git can'
-alias gf='git push -f'
+alias gf='git fetch'
 alias gs='git status'
 alias gm='git commit -m "$@"'
 alias gp='git push'
-alias ggc='ga && gc && gf && gs'
+alias gfp='git push -f'
+alias ggc='ga && gc && gfp && gs'
 alias ggm='ga && gm "$@" && gp && gs'
 
 
