@@ -59,6 +59,16 @@ alias v='vim '
 alias vi='vim '
 alias i='ipython3 '
 
+alias ga='git add .'
+alias gc='git can'
+alias gf='git push -f'
+alias gs='git status'
+alias gm='git commit -m "$@"'
+alias gp='git push'
+alias ggc='ga && gc && gf && gs'
+alias ggm='ga && gm "$@" && gp && gs'
+
+
 alias bal='rm -f debian/pkg/* && szn-buildpackage -nccu'
 alias bam='bal && dpkg -i debian/pkg/*deb'
 alias wow='bam && /etc/init.d/$(basename $(ls debian/*init | head -n 1) .init) restart'
