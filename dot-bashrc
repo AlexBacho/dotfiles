@@ -69,7 +69,7 @@ alias gfp='git push -f'
 alias ggc='ga && gc && gfp && gs'
 alias ggm='ga && gm "$@" && gp && gs'
 
-
+alias k='kubectl '
 alias bal='rm -f debian/pkg/* && szn-buildpackage -nccu'
 alias bam='bal && dpkg -i debian/pkg/*deb'
 alias wow='bam && /etc/init.d/$(basename $(ls debian/*init | head -n 1) .init) restart'
